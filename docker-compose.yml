@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sweety-postgres
+    restart: unless-stopped
+    ports:
+      - "55432:5432"
+    environment:
+      POSTGRES_USER: sweety
+      POSTGRES_PASSWORD: sweety_dev_password
+      POSTGRES_DB: sweety_db
+    volumes:
+      - sweety_blood_glucose_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sweety -d sweety_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  sweety_blood_glucose_pg_data:

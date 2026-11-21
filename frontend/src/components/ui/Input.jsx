@@ -46,7 +46,7 @@ function Input({
           aria-invalid={hasError}
           aria-describedby={hasError ? errorId : undefined}
           className={[
-            'w-full rounded-xl border bg-white px-4 py-3.5 text-base text-navy',
+            'w-full rounded-xl border bg-night-900 px-4 py-3.5 text-base text-navy',
             'placeholder:text-navy-soft/70',
             'transition-colors duration-150',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',

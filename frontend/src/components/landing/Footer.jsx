@@ -1,3 +1,4 @@
+
 import { Droplets } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -24,6 +25,7 @@ function Footer() {
               Sweety
             </span>
           </div>
+
           <p className="mt-4 text-sm leading-relaxed text-sky-mid">
             A calm blood glucose tracker for patients who want clarity without
             complexity.
@@ -34,6 +36,7 @@ function Footer() {
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-mint-300">
             Navigate
           </p>
+
           <ul className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
             {footerLinks.map((link) => (
               <li key={link.label}>
@@ -59,9 +62,15 @@ function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <p className="mx-auto max-w-6xl px-4 py-5 text-sm text-sky-mid sm:px-6 lg:px-8">
-          © {year} Sweety. Built for patient-friendly glucose monitoring.
-        </p>
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-sm text-sky-mid sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+          <p>
+            © {year} Sweety. Built for patient-friendly glucose monitoring.
+          </p>
+
+          <p>
+            Built by <span className="font-bold text-white">Rishabh Jain</span>.
+          </p>
+        </div>
       </div>
     </footer>
   );

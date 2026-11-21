@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import env from './config/env.js';
 import healthRoutes from './routes/health.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import readingRoutes from './routes/reading.routes.js';
+import reportRoutes from './routes/report.routes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -31,6 +34,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/readings', readingRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

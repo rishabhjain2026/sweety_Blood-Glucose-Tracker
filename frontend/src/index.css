@@ -3,12 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --color-mint: #3dab7a;
-  --color-mint-soft: #e4f5ee;
-  --color-sky: #e8f1f8;
-  --color-lavender: #f0ebf5;
-  --color-navy: #1b2a4a;
-  --color-navy-muted: #3d4f6f;
+  color-scheme: dark;
+  --color-mint: #54d99a;
+  --color-mint-soft: #12231f;
+  --color-sky: #101f22;
+  --color-lavender: #191c2a;
+  --color-navy: #e9f4ee;
+  --color-navy-muted: #a5b8af;
+  --surface: #11201c;
+  --surface-raised: #162722;
+  --outline: #263d35;
 }
 
 @layer base {
@@ -17,11 +21,11 @@
   }
 
   body {
-    @apply m-0 min-h-screen bg-mint-50 font-sans text-navy antialiased;
+    @apply m-0 min-h-screen bg-night-950 font-sans text-slate-100 antialiased;
   }
 
   ::selection {
-    @apply bg-mint-200 text-navy;
+    @apply bg-mint-500 text-night-950;
   }
 }
 
@@ -29,6 +33,33 @@
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* The original screens use white/mint utility classes. Keep those components
+   while translating their surfaces into the shared dark theme. */
+@layer utilities {
+  .bg-white { background-color: var(--surface) !important; }
+  .bg-white\/95, .bg-white\/90 { background-color: rgb(17 32 28 / 94%) !important; }
+  .bg-white\/80, .bg-white\/70, .bg-white\/60 { background-color: rgb(17 32 28 / 78%) !important; }
+  .bg-white\/50 { background-color: rgb(17 32 28 / 58%) !important; }
+  .bg-navy { background-color: #0a1511 !important; }
+  .bg-hero-glow { background-image: radial-gradient(ellipse 70% 65% at 78% 38%, rgb(37 125 91 / 20%), transparent), radial-gradient(ellipse 55% 55% at 15% 65%, rgb(43 83 72 / 24%), transparent), linear-gradient(150deg, #08130f 0%, #0c1916 55%, #101820 100%) !important; }
+  .text-navy { color: #e9f4ee !important; }
+  .text-navy-muted { color: #a5b8af !important; }
+  .text-navy-soft { color: #81958c !important; }
+  .text-mint-600, .text-mint-700 { color: #80e7b3 !important; }
+  .text-mint-300 { color: #8be6b8 !important; }
+  .text-sky-mid { color: #a7beb6 !important; }
+  .text-sky-deep { color: #a4d2d2 !important; }
+  .text-violet-700 { color: #c4b5fd !important; }
+  .text-amber-700 { color: #f5cb76 !important; }
+  .text-red-700 { color: #fca5a5 !important; }
+  .bg-red-50 { background-color: #351c20 !important; }
+  .bg-red-100 { background-color: #452428 !important; }
+  .bg-amber-50 { background-color: #302718 !important; }
+  .border-white, .border-white\/80, .border-mint-100, .border-mint-200 { border-color: var(--outline) !important; }
+  .to-white { --tw-gradient-to: #12231f var(--tw-gradient-to-position) !important; }
+  input, select, textarea { color-scheme: dark; }
 }
 
 @media (prefers-reduced-motion: reduce) {
