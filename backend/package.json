@@ -1,0 +1,32 @@
+{
+  "name": "sweety-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sweety blood glucose tracker API",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "db:up": "docker compose -f ../docker-compose.yml up -d",
+    "db:down": "docker compose -f ../docker-compose.yml down",
+    "db:check": "node src/scripts/checkDb.js"
+  },
+  "keywords": [
+    "sweety",
+    "healthcare",
+    "express"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "morgan": "^1.12.1",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
