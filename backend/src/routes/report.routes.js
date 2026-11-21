@@ -14,9 +14,19 @@ const labels = { morning: 'Morning (fasting)', after_breakfast: 'After breakfast
 
 router.get('/summary', async (req, res, next) => {
   try {
-    const readings = await prisma.reading.findMany({ where: { userId: req.userId }, select: { value: true } });
-    const values = readings.map((r) => r.value);
-    return res.json({ success: true, data: { total: values.length, highest: values.length ? Math.max(...values) : null, lowest: values.length ? Math.min(...values) : null, average: values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length * 10) / 10 : null } });
+    const aggregate = await prisma.reading.aggregate({
+      where: { userId: req.userId },
+      _count: { _all: true },
+      _max: { value: true },
+      _min: { value: true },
+      _avg: { value: true },
+    });
+    return res.json({ success: true, data: {
+      total: aggregate._count._all,
+      highest: aggregate._max.value,
+      lowest: aggregate._min.value,
+      average: aggregate._avg.value == null ? null : Math.round(aggregate._avg.value * 10) / 10,
+    } });
   } catch (error) { return next(error); }
 });
 

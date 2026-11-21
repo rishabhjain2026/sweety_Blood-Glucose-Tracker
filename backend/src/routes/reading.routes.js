@@ -15,6 +15,7 @@ const dateUTC = (value) => new Date(`${value}T00:00:00.000Z`);
 const todayUTC = () => new Date().toISOString().slice(0, 10);
 
 function validate(body) {
+  body = body && typeof body === 'object' ? body : {};
   if (body.value === '' || body.value === undefined || body.value === null) return 'Please enter a glucose value.';
   if (!Number.isInteger(Number(body.value)) || Number(body.value) < 40 || Number(body.value) > 600) return 'Value must be between 40 and 600 mg/dl.';
   if (!validDate(body.date)) return 'Please enter a valid date.';
@@ -25,6 +26,7 @@ function validate(body) {
 
 async function saveReading(req, res, next, id = null) {
   try {
+    if (id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return res.status(404).json({ success: false, message: 'Reading not found.' });
     const issue = validate(req.body);
     if (issue) return res.status(400).json({ success: false, message: issue });
     const payload = { date: dateUTC(req.body.date), slot: req.body.slot, value: Number(req.body.value) };
@@ -63,6 +65,7 @@ router.post('/', (req, res, next) => saveReading(req, res, next));
 router.put('/:id', (req, res, next) => saveReading(req, res, next, req.params.id));
 router.delete('/:id', async (req, res, next) => {
   try {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(req.params.id)) return res.status(404).json({ success: false, message: 'Reading not found.' });
     const result = await prisma.reading.deleteMany({ where: { id: req.params.id, userId: req.userId } });
     if (!result.count) return res.status(404).json({ success: false, message: 'Reading not found.' });
     return res.json({ success: true, message: 'Reading deleted.' });
