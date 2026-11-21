@@ -2,9 +2,11 @@
 
 A modern healthcare web app that helps diabetes patients record blood glucose readings and monitor daily and monthly health trends.
 
+**Language:** JavaScript throughout (`.js` / `.jsx` only — no TypeScript).
+
 ## Milestone 1
 
-Frontend landing page only (Vite + React + Tailwind).
+Frontend landing page only (Vite + React + Tailwind CSS + Framer Motion).
 
 ### Prerequisites
 
