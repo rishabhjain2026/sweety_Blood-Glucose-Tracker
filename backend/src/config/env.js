@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { randomBytes } from 'node:crypto';
 
 dotenv.config();
 
@@ -18,6 +19,10 @@ const env = {
     'postgresql://sweety:sweety_dev_password@localhost:5432/sweety_db?schema=public',
   ),
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production'
+    ? required('JWT_SECRET')
+    : randomBytes(32).toString('hex')),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   isDev: (process.env.NODE_ENV || 'development') !== 'production',
 };
 

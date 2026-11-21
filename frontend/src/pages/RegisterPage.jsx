@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import AuthLayout from '../components/auth/AuthLayout.jsx';
 import Button from '../components/ui/Button.jsx';
 import Input from '../components/ui/Input.jsx';
 import { validateRegisterForm } from '../utils/authValidation.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const initialValues = {
   name: '',
@@ -18,12 +19,15 @@ function RegisterPage() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [submittedValid, setSubmittedValid] = useState(false);
+  const [serverError, setServerError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setValues((current) => ({ ...current, [name]: value }));
-    setSubmittedValid(false);
+    setServerError('');
 
     if (errors[name]) {
       setErrors((current) => ({ ...current, [name]: '' }));
@@ -36,13 +40,15 @@ function RegisterPage() {
     setErrors((current) => ({ ...current, [name]: nextErrors[name] }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const { errors: nextErrors, isValid } = validateRegisterForm(values);
     setErrors(nextErrors);
-    setSubmittedValid(isValid);
-
-    // Backend registration wiring arrives in Milestone 6.
+    if (!isValid) return;
+    setSubmitting(true); setServerError('');
+    try { await signIn('/auth/register', { name: values.name, email: values.email, password: values.password }); navigate('/dashboard', { replace: true }); }
+    catch (error) { setServerError(error.message); }
+    finally { setSubmitting(false); }
   };
 
   return (
@@ -144,18 +150,10 @@ function RegisterPage() {
           }
         />
 
-        {submittedValid ? (
-          <p
-            role="status"
-            className="rounded-xl border border-mint-200 bg-mint-50 px-4 py-3 text-sm leading-relaxed text-navy-muted"
-          >
-            Form looks good. Account creation will connect once the
-            authentication API is ready.
-          </p>
-        ) : null}
+        {serverError ? <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{serverError}</p> : null}
 
-        <Button type="submit" variant="primary" size="lg" fullWidth>
-          Create Account
+        <Button type="submit" variant="primary" size="lg" fullWidth disabled={submitting}>
+          {submitting ? 'Creating account…' : 'Create Account'}
         </Button>
       </form>
     </AuthLayout>
