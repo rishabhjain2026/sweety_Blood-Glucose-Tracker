@@ -54,6 +54,8 @@ The optional seed creates `demo@sweety.health` with password `SweetyDemo2026!` a
 
 Authenticated endpoints require `Authorization: Bearer <token>`. Reading queries and mutations are scoped to the authenticated user. Reading values, supported time slots, duplicate daily slots, four-per-day limits, and future dates are validated by the API and database constraints.
 
+`GET /api/readings` accepts `page` and `limit` query parameters (`page=1&limit=20` by default; limit is capped at 100). The response includes `pagination` metadata with the total count, page count, and previous/next flags. The Reports screen plots the selected month-to-date readings in a responsive line chart.
+
 ## Tests and checks
 
 There is no automated test suite in the starter project. Useful local checks:

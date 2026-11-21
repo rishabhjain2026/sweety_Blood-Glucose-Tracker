@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom';
 
 const variants = {
   primary:
-    'bg-mint-500 text-white shadow-soft hover:bg-mint-600 focus-visible:ring-mint-400',
+    'bg-mint-500 text-night-950 shadow-glow hover:bg-mint-400 focus-visible:ring-mint-400',
   secondary:
-    'bg-white text-navy border border-mint-200 shadow-card hover:border-mint-400 hover:bg-mint-50 focus-visible:ring-mint-300',
+    'bg-night-800 text-navy border border-night-600 shadow-card hover:border-mint-400 hover:bg-night-700 focus-visible:ring-mint-300',
   ghost:
-    'bg-transparent text-navy-muted hover:text-navy hover:bg-mint-100 focus-visible:ring-mint-300',
+    'bg-transparent text-navy-muted hover:text-navy hover:bg-night-800 focus-visible:ring-mint-300',
 };
 
 const sizes = {

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, CalendarDays, ChartNoAxesCombined, Droplets, LayoutDashboard, LogOut, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import GlucoseTrendChart from '../components/dashboard/GlucoseTrendChart.jsx';
 
 const slots = [
   ['morning', 'Morning (fasting)'], ['after_breakfast', 'After breakfast'],
@@ -14,6 +15,8 @@ const prettyDate = (value) => new Date(`${value}T00:00:00`).toLocaleDateString(u
 function DashboardPage({ view = 'dashboard' }) {
   const { user, signOut, api } = useAuth();
   const [readings, setReadings] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
+  const [page, setPage] = useState(1);
   const [summary, setSummary] = useState(null);
   const [reports, setReports] = useState(null);
   const [reportsLoading, setReportsLoading] = useState(false);
@@ -28,11 +31,12 @@ function DashboardPage({ view = 'dashboard' }) {
   const refresh = useCallback(async () => {
     setBusy(true); setError('');
     try {
-      const [readingData, summaryData] = await Promise.all([api('/readings'), api('/reports/summary')]);
-      setReadings(readingData.readings); setSummary(summaryData);
+      const [readingData, summaryData] = await Promise.all([api(`/readings?page=${page}&limit=20`), api('/reports/summary')]);
+      setReadings(readingData.readings); setPagination(readingData.pagination); setSummary(summaryData);
+      setPage((current) => readingData.pagination.totalPages ? Math.min(current, readingData.pagination.totalPages) : 1);
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
-  }, [api]);
+  }, [api, page]);
 
   useEffect(() => { refresh(); }, [refresh]);
   const loadReports = useCallback(async () => {
@@ -85,7 +89,7 @@ function DashboardPage({ view = 'dashboard' }) {
       <div className="flex items-center gap-3"><span className="hidden text-sm text-navy-muted sm:inline">Hi, {user?.name?.split(' ')[0]}</span><button onClick={signOut} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-navy-muted hover:bg-mint-50"><LogOut size={17}/> <span className="hidden sm:inline">Sign out</span></button></div>
     </div></header>
     <div className="mx-auto grid max-w-7xl gap-6 px-4 py-7 sm:px-6 lg:grid-cols-[220px_1fr] lg:px-8 lg:py-10">
-      <aside><nav aria-label="Dashboard" className="flex gap-2 overflow-x-auto lg:flex-col">{nav.map(([href, label, Icon]) => <Link key={href} to={href} className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold ${view === (href === '/dashboard' ? 'dashboard' : href.slice(1)) ? 'bg-mint-600 text-white shadow-soft' : 'text-navy-muted hover:bg-white'}`}><Icon size={18}/>{label}</Link>)}</nav></aside>
+      <aside><nav aria-label="Dashboard" className="flex gap-2 overflow-x-auto lg:flex-col">{nav.map(([href, label, Icon]) => <Link key={href} to={href} className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold ${view === (href === '/dashboard' ? 'dashboard' : href.slice(1)) ? 'bg-mint-600 text-night-950 shadow-glow' : 'text-navy-muted hover:bg-white'}`}><Icon size={18}/>{label}</Link>)}</nav></aside>
       <main className="min-w-0">
         <div className="mb-6"><p className="text-sm font-semibold uppercase tracking-[.12em] text-mint-700">Your health, at a glance</p><h1 className="mt-1 font-display text-3xl font-semibold text-navy">{view === 'reports' ? 'Reports' : view === 'readings' ? 'Reading history' : `Good ${new Date().getHours() < 12 ? 'morning' : 'day'}, ${user?.name?.split(' ')[0] || 'there'}`}</h1></div>
         {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
@@ -97,12 +101,23 @@ function DashboardPage({ view = 'dashboard' }) {
               <form onSubmit={submit} className="space-y-4"><label className="block text-sm font-medium text-navy">Date<input aria-label="Reading date" type="date" max={today()} required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="mt-1.5 block w-full rounded-xl border border-mint-200 bg-white px-3 py-3 text-navy outline-none focus:border-mint-500 focus:ring-2 focus:ring-mint-100"/></label>
               <label className="block text-sm font-medium text-navy">Time slot<select value={form.slot} onChange={(e) => setForm({ ...form, slot: e.target.value })} className="mt-1.5 block w-full rounded-xl border border-mint-200 bg-white px-3 py-3 text-navy outline-none focus:border-mint-500 focus:ring-2 focus:ring-mint-100">{slots.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
               <label className="block text-sm font-medium text-navy">Glucose value (mg/dl)<input aria-label="Glucose value in mg/dl" type="number" min="40" max="600" step="1" inputMode="numeric" placeholder="For example, 110" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} className="mt-1.5 block w-full rounded-xl border border-mint-200 bg-white px-3 py-3 text-navy outline-none placeholder:text-navy-muted/60 focus:border-mint-500 focus:ring-2 focus:ring-mint-100"/></label>
-              <div className="flex gap-2"><button disabled={saving} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-mint-600 px-4 py-3 font-semibold text-white hover:bg-mint-700 disabled:opacity-60"><Plus size={18}/>{saving ? 'Saving…' : editing ? 'Save changes' : 'Save reading'}</button>{editing && <button type="button" onClick={resetForm} className="rounded-xl border border-mint-200 px-4 py-3 font-semibold text-navy">Cancel</button>}</div></form>
+              <div className="flex gap-2"><button disabled={saving} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-mint-600 px-4 py-3 font-semibold text-night-950 hover:bg-mint-500 disabled:opacity-60"><Plus size={18}/>{saving ? 'Saving…' : editing ? 'Save changes' : 'Save reading'}</button>{editing && <button type="button" onClick={resetForm} className="rounded-xl border border-mint-200 px-4 py-3 font-semibold text-navy">Cancel</button>}</div></form>
             </section>
-            <section className="rounded-2xl border border-white bg-white p-5 shadow-card sm:p-6"><div className="mb-5 flex items-center justify-between"><div><h2 className="font-display text-xl font-semibold text-navy">{view === 'readings' ? 'All readings' : 'Recent readings'}</h2><p className="mt-1 text-sm text-navy-muted">Your latest saved measurements.</p></div>{view === 'dashboard' && <Link to="/readings" className="text-sm font-semibold text-mint-700 hover:text-mint-800">View all</Link>}</div>{busy ? <p className="py-6 text-center text-sm text-navy-muted" role="status">Loading readings…</p> : rows(view === 'readings' ? readings : readings.slice(0, 5))}</section>
+            <section className="rounded-2xl border border-white bg-white p-5 shadow-card sm:p-6">
+              <div className="mb-5 flex items-center justify-between"><div><h2 className="font-display text-xl font-semibold text-navy">{view === 'readings' ? 'All readings' : 'Recent readings'}</h2><p className="mt-1 text-sm text-navy-muted">{view === 'readings' ? `${pagination.total} saved measurements` : 'Your latest saved measurements.'}</p></div>{view === 'dashboard' && <Link to="/readings" className="text-sm font-semibold text-mint-700 hover:text-mint-800">View all</Link>}</div>
+              {busy ? <p className="py-6 text-center text-sm text-navy-muted" role="status">Loading readings…</p> : rows(view === 'readings' ? readings : readings.slice(0, 5))}
+              {view === 'readings' && pagination.totalPages > 1 && <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-mint-100 pt-4">
+                <p className="text-sm text-navy-muted">Page {pagination.page} of {pagination.totalPages}</p>
+                <div className="flex gap-2">
+                  <button type="button" disabled={!pagination.hasPreviousPage || busy} onClick={() => setPage((current) => Math.max(1, current - 1))} className="rounded-xl border border-mint-200 px-4 py-2 text-sm font-semibold text-navy transition hover:bg-mint-50 disabled:cursor-not-allowed disabled:opacity-40">Previous</button>
+                  <button type="button" disabled={!pagination.hasNextPage || busy} onClick={() => setPage((current) => current + 1)} className="rounded-xl border border-mint-200 px-4 py-2 text-sm font-semibold text-navy transition hover:bg-mint-50 disabled:cursor-not-allowed disabled:opacity-40">Next</button>
+                </div>
+              </div>}
+            </section>
           </div>
         </>}
         {view === 'reports' && <><section className="mb-6 flex flex-wrap items-end gap-4 rounded-2xl border border-white bg-white p-5 shadow-card"><label className="text-sm font-medium text-navy">Report date<input type="date" max={today()} value={reportDate} onChange={(e) => setReportDate(e.target.value)} className="mt-1.5 block rounded-xl border border-mint-200 px-3 py-2.5 outline-none focus:border-mint-500"/></label><p className="pb-2 text-sm text-navy-muted">Monthly periods use the selected date.</p></section>
+          <section className="mb-6 rounded-2xl border border-white bg-white p-5 shadow-card sm:p-6"><div className="mb-4"><h2 className="font-display text-xl font-semibold text-navy">Monthly glucose trend</h2><p className="mt-1 text-sm text-navy-muted">See how your saved readings move through the selected month.</p></div>{reportsLoading ? <p className="py-8 text-center text-sm text-navy-muted" role="status">Loading chart…</p> : reports && <GlucoseTrendChart readings={reports.monthToDate} selectedDate={reportDate} />}</section>
           {reportsLoading ? <p className="py-8 text-center text-sm text-navy-muted" role="status">Loading reports…</p> : <div className="grid gap-5 xl:grid-cols-3">{reports && [[`Daily · ${prettyDate(reportDate)}`, reports.daily], [`Month to date · ${prettyDate(reportDate)}`, reports.monthToDate], [`${reports.previousMonthLabel} · full month`, reports.previousMonth]].map(([title, data]) => <section key={title} className="rounded-2xl border border-white bg-white p-5 shadow-card"><h2 className="mb-5 font-display text-lg font-semibold text-navy">{title}</h2>{rows(data)}</section>)}</div>}</>}
       </main>
     </div>

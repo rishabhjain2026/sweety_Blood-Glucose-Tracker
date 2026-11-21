@@ -52,13 +52,42 @@ async function saveReading(req, res, next, id = null) {
 
 router.get('/', async (req, res, next) => {
   try {
+    const pageParam = req.query.page ?? '1';
+    const limitParam = req.query.limit ?? '20';
+    if (!/^\d+$/.test(pageParam) || !Number.isSafeInteger(Number(pageParam)) || Number(pageParam) < 1) {
+      return res.status(400).json({ success: false, message: 'Page must be a positive integer.' });
+    }
+    if (!/^\d+$/.test(limitParam) || Number(limitParam) < 1 || Number(limitParam) > 100) {
+      return res.status(400).json({ success: false, message: 'Limit must be between 1 and 100.' });
+    }
+    const page = Number(pageParam);
+    const limit = Number(limitParam);
     const where = { userId: req.userId };
     if (req.query.date) {
       if (!validDate(req.query.date)) return res.status(400).json({ success: false, message: 'Please enter a valid date.' });
       where.date = dateUTC(req.query.date);
     }
-    const readings = await prisma.reading.findMany({ where, orderBy: [{ date: 'desc' }, { slot: 'asc' }] });
-    return res.json({ success: true, data: { readings } });
+    const [total, readings] = await Promise.all([
+      prisma.reading.count({ where }),
+      prisma.reading.findMany({
+        where,
+        orderBy: [{ date: 'desc' }, { slot: 'asc' }],
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+    const totalPages = Math.ceil(total / limit);
+    return res.json({ success: true, data: {
+      readings,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasPreviousPage: page > 1,
+        hasNextPage: page < totalPages,
+      },
+    } });
   } catch (error) { return next(error); }
 });
 router.post('/', (req, res, next) => saveReading(req, res, next));
