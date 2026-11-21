@@ -4,9 +4,12 @@ A modern healthcare web app that helps diabetes patients record blood glucose re
 
 **Language:** JavaScript throughout (`.js` / `.jsx` only — no TypeScript).
 
-## Milestone 1
+## Current milestone progress
 
-Frontend landing page only (Vite + React + Tailwind CSS + Framer Motion).
+- **Milestone 1:** Animated healthcare landing page
+- **Milestone 2:** Authentication UI (login + registration screens with client-side validation)
+
+Backend APIs are not connected yet.
 
 ### Prerequisites
 
