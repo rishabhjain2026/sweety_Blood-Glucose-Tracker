@@ -22,6 +22,8 @@ function Button({
   href,
   className = '',
   type = 'button',
+  disabled = false,
+  fullWidth = false,
   ...props
 }) {
   const classes = [
@@ -29,6 +31,8 @@ function Button({
     'transition-all duration-200 ease-out',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
     'active:scale-[0.98]',
+    'disabled:pointer-events-none disabled:opacity-55',
+    fullWidth ? 'w-full' : '',
     variants[variant],
     sizes[size],
     className,
@@ -38,7 +42,13 @@ function Button({
 
   if (to) {
     return (
-      <Link to={to} className={classes} {...props}>
+      <Link
+        to={to}
+        className={classes}
+        aria-disabled={disabled || undefined}
+        tabIndex={disabled ? -1 : undefined}
+        {...props}
+      >
         {children}
       </Link>
     );
@@ -53,7 +63,7 @@ function Button({
   }
 
   return (
-    <button type={type} className={classes} {...props}>
+    <button type={type} className={classes} disabled={disabled} {...props}>
       {children}
     </button>
   );
