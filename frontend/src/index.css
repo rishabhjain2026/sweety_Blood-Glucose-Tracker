@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-mint: #3dab7a;
+  --color-mint-soft: #e4f5ee;
+  --color-sky: #e8f1f8;
+  --color-lavender: #f0ebf5;
+  --color-navy: #1b2a4a;
+  --color-navy-muted: #3d4f6f;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply m-0 min-h-screen bg-mint-50 font-sans text-navy antialiased;
+  }
+
+  ::selection {
+    @apply bg-mint-200 text-navy;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
