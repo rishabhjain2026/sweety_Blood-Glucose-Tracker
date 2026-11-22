@@ -253,14 +253,6 @@ npm run build
 9. Check daily and monthly reports.
 10. Register another account and verify that users cannot access each other's readings.
 
-## Demo Account
-
-The optional database seed script creates a demo account:
-
-- Email: `demo@sweety.health`
-- Password: `SweetyDemo2026!`
-
-Use this account only for development and demonstration purposes.
 
 ## Author
 
